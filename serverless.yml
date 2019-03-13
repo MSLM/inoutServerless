@@ -145,6 +145,23 @@ functions:
 
 
   # Schedule Routes
+  schedulePublicGet:
+    handler: models/schedule.getPublic
+    memorySize: 128
+    events:
+      - http:
+          method: get
+          cors: true
+          path: /pubilc/{proxy+}
+          request:
+            parameters:
+              paths:
+                proxy: true
+      - http:
+          method: get
+          cors: true
+          path: /public
+
   scheduleGet:
     handler: models/schedule.get
     memorySize: 128

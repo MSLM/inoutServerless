@@ -1,3 +1,43 @@
+export const getPublicUser = async(con, startDate, endDate, userID) => {
+  const [schedule] = await con.query(`select * 
+                                     from userSchedule 
+                                    where day between ? and ? 
+                                      and userID = ? 
+                                    order by day, startTime`,
+    [startDate, endDate, userID]);
+  return {schedule: schedule};
+
+};
+
+export const getPublic = async(con, startDate, endDate) => {
+  // Terribly inefficient but for small use it is DRY and clean.
+  const [users] = await con.query(`select distinct userID 
+                                     from userSchedule 
+                                    where day between ? and ?`,
+    [startDate, endDate]);
+
+  for(const i in users) {
+    users[i].schedule = this.getPublicUser(con, startDate, endDate, users[i].id);
+  }
+
+  return {users: users};
+};
+
+export const get = async (con, startDate, endDate, userID) => {
+  const [schedule] = await con.query(`select * 
+                                     from userSchedule 
+                                    where userID = ? 
+                                      and day between ? and ?
+                                    order by day, startTime`,
+    [userID, startDate, endDate]);
+
+    // Look for any missing days
+
+  return {schedule: schedule};
+}
+
+
+
 export const add = async (con, userID, body) => {
   const [[info]] = await con.query('select max(sOrder)+1 as sOrder from userArea where userID = ?', [userID]);
   const sOrder = info.sOrder ? info.sOrder : 0;
@@ -57,12 +97,3 @@ export const sortArea = async (con, userID, body) => {
   return 'sorted';
 };
 
-export const getNoteHistory = async (con, userID, areaID) => {
-  const [notes] = await con.query(`select * 
-                                     from userAreaNoteHistory 
-                                    where userAreaID = ? 
-                                      and userAreaID in (select id from userArea where userID = ?) 
-                                    order by noteUpdated desc`,
-    [areaID, userID]);
-  return {notes: notes};
-}

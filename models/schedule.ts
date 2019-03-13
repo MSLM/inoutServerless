@@ -1,12 +1,11 @@
 const mysql = require('mysql2/promise');
 const bluebird = require('bluebird');
 const exit = require('../services/exit');
-const auth = require('./auth');
 const moment = require('moment');
 
-const areaService = require('../services/service.area');
+const scheduleService = require('../services/service.schedule');
 
-// env from serverless.yml
+// env from env.yml
 const rdbInfo = {
   host: process.env.MYSQL_HOST,
   user: process.env.MYSQL_USER,
@@ -14,6 +13,43 @@ const rdbInfo = {
   database: process.env.MYSQL_DATABASE,
   promise: bluebird
 };
+
+export const getPublic = async (event, context, cb) => {
+  try {
+    const con = await mysql.createConnection(rdbInfo);
+    try {
+      let result = 'No Path Found';
+      let proxy = [];
+      if (event.pathParameters && event.pathParameters.proxy) {
+        proxy = event.pathParameters.proxy.split('/');
+      }
+
+      console.log('schedule.getPublic', proxy);
+
+      let startDate = proxy[0];
+      let endDate = proxy[1];
+      const userID = proxy[2];
+
+      if (!startDate) {
+        startDate = moment().tz('America/Los_Angeles').format('YYYY-MM-DD');
+        endDate = moment().tz('America/Los_Angeles').add(6, 'days').format('YYYY-MM-DD');
+      }
+
+      if (userID) {
+        result = scheduleService.getPublicUser(con, startDate, endDate, userID);
+      } else {
+        result = scheduleService.getPublic(con, startDate, endDate);
+      }
+
+      exit.exit200(cb, con, result);
+    } catch (e) {
+      await exit.exit500con(cb, e, con);
+    }
+  } catch (e) {
+    exit.exit500(cb, e);
+  }
+};
+
 
 
 export const get = async (event, context, cb) => {
@@ -26,11 +62,11 @@ export const get = async (event, context, cb) => {
       if (event.pathParameters && event.pathParameters.proxy) {
         proxy = event.pathParameters.proxy.split('/');
       }
-      const areaID = proxy[0];
-      console.log('area.get', proxy);
+      const scheduleID = proxy[0];
+      console.log('schedule.get', proxy);
       switch (proxy[1]) {
         case 'note':
-          result = await areaService.getNoteHistory(con, userID, areaID);
+          result = await scheduleService.getNoteHistory(con, userID, scheduleID);
           break;
         default:
           break;
@@ -55,11 +91,11 @@ export const post = async (event, context, cb) => {
       if (event.pathParameters && event.pathParameters.proxy) {
         proxy = event.pathParameters.proxy.split('/');
       }
-      console.log('area.post', proxy);
+      console.log('schedule.post', proxy);
       switch (proxy[0]) {
         default:
           if (!proxy[0]) {
-            result = await areaService.add(con, userID, body);
+            result = await scheduleService.add(con, userID, body);
           }
           break;
       }
@@ -83,20 +119,20 @@ export const put = async (event, context, cb) => {
       if (event.pathParameters && event.pathParameters.proxy) {
         proxy = event.pathParameters.proxy.split('/');
       }
-      console.log('area.put', proxy);
+      console.log('schedule.put', proxy);
       switch (proxy[0]) {
         case 'sort':
-          result = await areaService.sortArea(con, userID, body);
+          result = await scheduleService.sortSchedule(con, userID, body);
           break;
         default:
           if (proxy[0] && !isNaN(proxy[0])) {
-            const areaID = proxy[0];
+            const scheduleID = proxy[0];
             switch (proxy[1]) {
               case 'note':
-                result = await areaService.saveNote(con, userID, areaID, body.note);
+                result = await scheduleService.saveNote(con, userID, scheduleID, body.note);
                 break;
               case 'sort':
-                result = await areaService.sort(con, userID, areaID, body);
+                result = await scheduleService.sort(con, userID, scheduleID, body);
                 break;
             }
           }
@@ -122,11 +158,11 @@ export const del = async (event, context, cb) => {
       if (event.pathParameters && event.pathParameters.proxy) {
         proxy = event.pathParameters.proxy.split('/');
       }
-      console.log('area.del', proxy);
+      console.log('schedule.del', proxy);
       switch (proxy[0]) {
         default:
           if (!isNaN(proxy[0])) {
-            result = areaService.remove(con, userID, proxy[0]);
+            result = scheduleService.remove(con, userID, proxy[0]);
           }
           break;
       }
