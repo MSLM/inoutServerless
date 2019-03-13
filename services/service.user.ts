@@ -14,6 +14,7 @@ export const authenticate = async (con, data: {refreshToken: string; email: stri
     return user;
   } else {
     const [[user]] = await con.query('select id, fname, lname, image, password from user where email = ?', [data.email]);
+    console.log('found', user);
     if (!user || !user.password){
       return 'User not found.';
     }
@@ -21,7 +22,6 @@ export const authenticate = async (con, data: {refreshToken: string; email: stri
       if (await pw.verifyPasswordHash(data.password, user.password)){
         return null;
       }else{
-        await con.query('insert into userLog (userID, logTime) values (?, NOW())', [user.id]);
         delete user.password;
         return user;
       }
