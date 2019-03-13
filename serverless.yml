@@ -1,0 +1,285 @@
+service:
+  name: userAPI
+
+plugins:
+- serverless-webpack
+
+provider:
+  name: aws
+  profile: inventaweb
+  runtime: nodejs8.10
+  region: us-east-2
+  stage: dev
+  environment:
+    MYSQL_HOST: ${file(env.yml):MYSQL_HOST}
+    MYSQL_DATABASE: ${file(env.yml):MYSQL_DATABASE}
+    MYSQL_USER: ${file(env.yml):MYSQL_USER}
+    MYSQL_PASS: ${file(env.yml):MYSQL_PASS}
+    JWT_KEY: ${file(env.yml):JWT_KEY}
+    JWT_TIME: ${file(env.yml):JWT_TIME}
+    SALT: ${file(env.yml):SALT}
+
+functions:
+  # Todo Routes
+
+  # User Routes
+  userGet:
+    handler: models/user.get
+    memorySize: 128
+    events:
+    - http:
+        method: get
+        cors: true
+        path: /user/{proxy+}
+        authorizer:
+          name: authFunc
+          resultTtlInSeconds: 0 # This sets all of the ttl for auth to 0 seconds.  Since policy returned is specific to the call this is critical.
+        request:
+          parameters:
+            paths:
+              proxy: true
+    - http:
+        method: get
+        cors: true
+        path: /user
+        authorizer:
+          name: authFunc
+          resultTtlInSeconds: 0 # This sets all of the ttl for auth to 0 seconds.  Since policy returned is specific to the call this is critical.
+        request:
+          parameters:
+            paths:
+              proxy: true
+
+  userRegister:
+    handler: models/user.register
+    memorySize: 128
+    events:
+    - http:
+        method: post
+        cors: true
+        path: /user/register
+
+  userAuth:
+    handler: models/user.authUser
+    memorySize: 128
+    events:
+    - http:
+        method: post
+        cors: true
+        path: /user/auth
+
+  userPost:
+    handler: models/user.post
+    memorySize: 128
+    events:
+    - http:
+        method: post
+        cors: true
+        path: /user/{proxy+}
+        authorizer:
+          name: authFunc
+          resultTtlInSeconds: 0 # This sets all of the ttl for auth to 0 seconds.  Since policy returned is specific to the call this is critical.
+        request:
+          parameters:
+            paths:
+              proxy: true
+    - http:
+        method: post
+        cors: true
+        path: /user
+        authorizer:
+          name: authFunc
+          resultTtlInSeconds: 0 # This sets all of the ttl for auth to 0 seconds.  Since policy returned is specific to the call this is critical.
+
+  userPut:
+    handler: models/user.put
+    memorySize: 128
+    events:
+    - http:
+        method: put
+        cors: true
+        path: /user/{proxy+}
+        authorizer:
+          name: authFunc
+          resultTtlInSeconds: 0 # This sets all of the ttl for auth to 0 seconds.  Since policy returned is specific to the call this is critical.
+        request:
+          parameters:
+            paths:
+              proxy: true
+    - http:
+        method: put
+        cors: true
+        path: /user
+        authorizer:
+          name: authFunc
+          resultTtlInSeconds: 0 # This sets all of the ttl for auth to 0 seconds.  Since policy returned is specific to the call this is critical.
+        request:
+          parameters:
+            paths:
+              proxy: true
+
+  userDelete:
+    handler: models/user.del
+    memorySize: 128
+    events:
+    - http:
+        method: delete
+        cors: true
+        path: /user/{proxy+}
+        authorizer:
+          name: authFunc
+          resultTtlInSeconds: 0 # This sets all of the ttl for auth to 0 seconds.  Since policy returned is specific to the call this is critical.
+        request:
+          parameters:
+            paths:
+              proxy: true
+    - http:
+        method: delete
+        cors: true
+        path: /user
+        authorizer:
+          name: authFunc
+          resultTtlInSeconds: 0 # This sets all of the ttl for auth to 0 seconds.  Since policy returned is specific to the call this is critical.
+        request:
+          parameters:
+            paths:
+              proxy: true
+
+
+
+  # Area Routes
+
+  areaGet:
+    handler: models/area.get
+    memorySize: 128
+    events:
+    - http:
+        method: get
+        cors: true
+        path: /area/{proxy+}
+        authorizer:
+          name: authFunc
+          resultTtlInSeconds: 0 # This sets all of the ttl for auth to 0 seconds.  Since policy returned is specific to the call this is critical.
+        request:
+          parameters:
+            paths:
+              proxy: true
+    - http:
+        method: get
+        cors: true
+        path: /area
+        authorizer:
+          name: authFunc
+          resultTtlInSeconds: 0 # This sets all of the ttl for auth to 0 seconds.  Since policy returned is specific to the call this is critical.
+        request:
+          parameters:
+            paths:
+              proxy: true
+
+  areaPost:
+    handler: models/area.post
+    memorySize: 128
+    events:
+    - http:
+        method: post
+        cors: true
+        path: /area/{proxy+}
+        authorizer:
+          name: authFunc
+          resultTtlInSeconds: 0 # This sets all of the ttl for auth to 0 seconds.  Since policy returned is specific to the call this is critical.
+        request:
+          parameters:
+            paths:
+              proxy: true
+    - http:
+        method: post
+        cors: true
+        path: /area
+        authorizer:
+          name: authFunc
+          resultTtlInSeconds: 0 # This sets all of the ttl for auth to 0 seconds.  Since policy returned is specific to the call this is critical.
+        request:
+          parameters:
+            paths:
+              proxy: true
+
+  areaPut:
+    handler: models/area.put
+    memorySize: 128
+    events:
+    - http:
+        method: put
+        cors: true
+        path: /area/{proxy+}
+        authorizer:
+          name: authFunc
+          resultTtlInSeconds: 0 # This sets all of the ttl for auth to 0 seconds.  Since policy returned is specific to the call this is critical.
+        request:
+          parameters:
+            paths:
+              proxy: true
+    - http:
+        method: put
+        cors: true
+        path: /area
+        authorizer:
+          name: authFunc
+          resultTtlInSeconds: 0 # This sets all of the ttl for auth to 0 seconds.  Since policy returned is specific to the call this is critical.
+        request:
+          parameters:
+            paths:
+              proxy: true
+
+  areaDelete:
+    handler: models/area.del
+    memorySize: 128
+    events:
+    - http:
+        method: delete
+        cors: true
+        path: /area/{proxy+}
+        authorizer:
+          name: authFunc
+          resultTtlInSeconds: 0 # This sets all of the ttl for auth to 0 seconds.  Since policy returned is specific to the call this is critical.
+        request:
+          parameters:
+            paths:
+              proxy: true
+    - http:
+        method: delete
+        cors: true
+        path: /area
+        authorizer:
+          name: authFunc
+          resultTtlInSeconds: 0 # This sets all of the ttl for auth to 0 seconds.  Since policy returned is specific to the call this is critical.
+        request:
+          parameters:
+            paths:
+              proxy: true
+
+  authFunc:
+    handler: models/auth.authorize
+    memorySize: 128
+
+resources:
+  Resources:
+    GatewayResponse:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: EXPIRED_TOKEN
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        StatusCode: '401'
+    AuthFailureGatewayResponse:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: UNAUTHORIZED
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        StatusCode: '401'
